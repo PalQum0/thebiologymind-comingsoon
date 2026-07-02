@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Biology Mind — Coming Soon</title>
+  <meta name="description" content="Deep dives into biology that make you say wait, WHAT? Launching soon." />
+  <meta property="og:title" content="The Biology Mind — Coming Soon" />
+  <meta property="og:description" content="Deep dives into biology that make you say wait, WHAT?" />
+  <meta property="og:type" content="website" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #060608;
+      --green:    #4ade80;
+      --green2:   #22c55e;
+      --purple:   #a855f7;
+      --purple2:  #7c3aed;
+      --white:    #f4f4f5;
+      --muted:    rgba(244,244,245,0.45);
+      --faint:    rgba(244,244,245,0.1);
+      --border:   rgba(74,222,128,0.18);
+      --glow:     rgba(74,222,128,0.08);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Canvas bg ── */
+    #canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ── Blob glow orbs ── */
+    .orbs {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.22;
+      animation: orb-drift 20s ease-in-out infinite alternate;
+    }
+    .orb-1 { width: 500px; height: 500px; background: var(--green); top: -120px; left: -100px; animation-duration: 18s; }
+    .orb-2 { width: 400px; height: 400px; background: var(--purple); bottom: 80px; right: -80px; animation-duration: 24s; animation-delay: -8s; }
+    .orb-3 { width: 300px; height: 300px; background: var(--green2); top: 40%; left: 60%; animation-duration: 22s; animation-delay: -4s; opacity: 0.12; }
+    @keyframes orb-drift {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(40px, 30px) scale(1.08); }
+    }
+
+    /* ── Noise overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .page {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem 5rem;
+      text-align: center;
+    }
+
+    /* ── Brand ── */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 3.5rem;
+      animation: fade-up 0.8s ease both;
+    }
+    .brand-mark {
+      font-size: 1.1rem;
+    }
+    .brand-name {
+      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+      font-size: 0.78rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--green);
+      font-weight: 400;
+    }
+    .brand-pulse {
+      width: 7px; height: 7px;
+      background: var(--green);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--green);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px var(--green); }
+      50%       { opacity: 0.3; transform: scale(0.6); box-shadow: 0 0 4px var(--green); }
+    }
+
+    /* ── Headline ── */
+    .eyebrow {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 1.25rem;
+      animation: fade-up 0.8s 0.1s ease both;
+    }
+
+    .headline {
+      font-family: 'Palatino Linotype', Palatino, Georgia, 'Times New Roman', serif;
+      font-size: clamp(3.5rem, 14vw, 9rem);
+      font-weight: 400;
+      line-height: 0.92;
+      letter-spacing: -0.025em;
+      margin-bottom: 0.3em;
+      position: relative;
+      animation: fade-up 0.8s 0.15s ease both;
+    }
+
+    .headline .word-coming {
+      display: block;
+      color: var(--white);
+    }
+    .headline .word-soon {
+      display: block;
+      -webkit-text-stroke: 1.5px var(--green);
+      color: transparent;
+      position: relative;
+    }
+    .headline .word-soon::after {
+      content: 'Soon';
+      position: absolute;
+      left: 0; right: 0;
+      background: linear-gradient(90deg, var(--green), var(--purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      opacity: 0.6;
+      filter: blur(18px);
+      z-index: -1;
+    }
+
+    .tagline {
+      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+      font-size: clamp(1rem, 2.5vw, 1.25rem);
+      font-style: italic;
+      color: var(--muted);
+      max-width: 480px;
+      line-height: 1.65;
+      margin-bottom: 3.5rem;
+      animation: fade-up 0.8s 0.25s ease both;
+    }
+    .tagline em {
+      color: var(--green);
+      font-style: italic;
+      font-weight: 400;
+    }
+
+    /* ── Countdown ── */
+    .countdown {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      animation: fade-up 0.8s 0.35s ease both;
+    }
+
+    .cd-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.25rem 1.4rem 1rem;
+      min-width: 86px;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+    .cd-block::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--green), transparent);
+      opacity: 0.5;
+    }
+
+    .cd-num {
+      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: var(--green);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.03em;
+    }
+
+    .cd-label {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.28);
+      margin-top: 0.45rem;
+    }
+
+    /* ── Email form ── */
+    .form-wrap {
+      width: 100%;
+      max-width: 440px;
+      animation: fade-up 0.8s 0.45s ease both;
+    }
+
+    .notify-form {
+      display: flex;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .notify-form input[type="email"] {
+      flex: 1;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 0.85rem 1.1rem;
+      color: var(--white);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.88rem;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s;
+    }
+    .notify-form input[type="email"]:focus {
+      border-color: var(--green);
+      background: rgba(74,222,128,0.05);
+    }
+    .notify-form input[type="email"]::placeholder { color: rgba(255,255,255,0.25); }
+
+    .notify-form button {
+      background: var(--green);
+      color: #060608;
+      border: none;
+      border-radius: 10px;
+      padding: 0.85rem 1.3rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 700;
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, transform 0.12s, box-shadow 0.2s;
+      box-shadow: 0 0 0 0 rgba(74,222,128,0.4);
+    }
+    .notify-form button:hover {
+      background: #86efac;
+      box-shadow: 0 0 20px rgba(74,222,128,0.3);
+    }
+    .notify-form button:active { transform: scale(0.96); }
+
+    .form-note {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.22);
+      margin-top: 0.65rem;
+      letter-spacing: 0.02em;
+    }
+
+    .thanks-msg {
+      display: none;
+      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
+      font-style: italic;
+      font-size: 1.05rem;
+      color: var(--green);
+      animation: fade-up 0.4s ease both;
+      padding: 0.8rem;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, transparent, var(--border), transparent);
+      margin: 2.5rem 0;
+      animation: fade-up 0.8s 0.55s ease both;
+    }
+
+    /* ── Social links ── */
+    .socials {
+      display: flex;
+      gap: 1.5rem;
+      animation: fade-up 0.8s 0.6s ease both;
+    }
+    .socials a {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .socials a:hover { color: var(--green); }
+
+    /* ── Ticker ── */
+    .ticker-wrap {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 10;
+      border-top: 1px solid rgba(74,222,128,0.1);
+      background: rgba(6,6,8,0.92);
+      backdrop-filter: blur(16px);
+      padding: 0.6rem 0;
+      overflow: hidden;
+    }
+    .ticker-track {
+      display: flex;
+      gap: 3.5rem;
+      animation: scroll-left 45s linear infinite;
+      white-space: nowrap;
+    }
+    .ticker-track:hover { animation-play-state: paused; }
+    .fact {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-shrink: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.32);
+    }
+    .fact-dot {
+      width: 4px; height: 4px;
+      background: var(--green);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    @keyframes scroll-left {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── Fade-up anim ── */
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 520px) {
+      .notify-form { flex-direction: column; }
+      .cd-block { min-width: 72px; padding: 1rem 0.9rem 0.8rem; }
+      .cd-num { font-size: 2rem; }
+      .headline { letter-spacing: -0.02em; }
+    }
+
+    /* ── Reduced motion ── */
+    @media (prefers-reduced-motion: reduce) {
+      .orb, .ticker-track, .brand-pulse { animation: none; }
+      .page > * { animation: none; opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Background layers -->
+<div class="orbs">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="orb orb-3"></div>
+</div>
+<canvas id="canvas"></canvas>
+
+<!-- Main content -->
+<div class="page">
+
+  <div class="brand">
+    <div class="brand-pulse"></div>
+    <span class="brand-mark">🧬</span>
+    <span class="brand-name">The Biology Mind</span>
+    <div class="brand-pulse"></div>
+  </div>
+
+  <p class="eyebrow">Something is growing</p>
+
+  <h1 class="headline">
+    <span class="word-coming">Coming</span>
+    <span class="word-soon">Soon</span>
+  </h1>
+
+  <p class="tagline">
+    Deep dives into biology that make you say <em>wait, WHAT?</em><br/>
+    Launching October 2026.
+  </p>
+
+  <!-- Countdown -->
+  <div class="countdown">
+    <div class="cd-block">
+      <span class="cd-num" id="cd-d">--</span>
+      <span class="cd-label">Days</span>
+    </div>
+    <div class="cd-block">
+      <span class="cd-num" id="cd-h">--</span>
+      <span class="cd-label">Hours</span>
+    </div>
+    <div class="cd-block">
+      <span class="cd-num" id="cd-m">--</span>
+      <span class="cd-label">Minutes</span>
+    </div>
+    <div class="cd-block">
+      <span class="cd-num" id="cd-s">--</span>
+      <span class="cd-label">Seconds</span>
+    </div>
+  </div>
+
+  <!-- Email form -->
+  <div class="form-wrap">
+    <form class="notify-form" id="notifyForm">
+      <input type="email" placeholder="your@email.com" autocomplete="email" required />
+      <button type="submit">Notify Me</button>
+    </form>
+    <p class="form-note">No spam. Just biology that genuinely blows your mind.</p>
+    <p class="thanks-msg" id="thanks">🧬 You're on the list — we'll ping you when we launch.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="socials">
+    <a href="#">Instagram</a>
+    <a href="#">Twitter / X</a>
+    <a href="#">RSS</a>
+  </div>
+
+</div>
+
+<!-- Fact ticker -->
+<div class="ticker-wrap">
+  <div class="ticker-track" id="ticker"></div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Canvas: floating particle network (cells + connections)
+// ─────────────────────────────────────────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const COUNT = window.innerWidth < 600 ? 35 : 65;
+  const particles = [];
+
+  function r(a, b) { return a + Math.random() * (b - a); }
+
+  // Two types: dot particles and ring particles (cells)
+  for (let i = 0; i < COUNT; i++) {
+    const isCell = Math.random() > 0.6;
+    particles.push({
+      x: r(0, W), y: r(0, H),
+      vx: r(-0.25, 0.25), vy: r(-0.25, 0.25),
+      radius: isCell ? r(3, 7) : r(1, 2.5),
+      isCell,
+      color: Math.random() > 0.55 ? [74, 222, 128] : [168, 85, 247],
+      alpha: r(0.25, 0.75),
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+
+    // Lines between close particles
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
+          const a = (1 - dist / 130) * 0.12;
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(74,222,128,${a})`;
+          ctx.lineWidth = 0.6;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw particles
+    particles.forEach(p => {
+      const [r, g, b] = p.color;
+
+      if (p.isCell) {
+        // Ring (cell membrane look)
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(${r},${g},${b},${p.alpha * 0.7})`;
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Nucleus dot
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius * 0.35, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha * 0.5})`;
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(${r},${g},${b},${p.alpha})`;
+        ctx.fill();
+      }
+
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < -10 || p.x > W + 10) p.vx *= -1;
+      if (p.y < -10 || p.y > H + 10) p.vy *= -1;
+    });
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Countdown to October 1, 2026
+// ─────────────────────────────────────────────────────────────────────────────
+(function () {
+  const TARGET = new Date('2026-10-01T00:00:00');
+  const els = {
+    d: document.getElementById('cd-d'),
+    h: document.getElementById('cd-h'),
+    m: document.getElementById('cd-m'),
+    s: document.getElementById('cd-s'),
+  };
+
+  function pad(n) { return String(Math.max(0, n)).padStart(2, '0'); }
+
+  function tick() {
+    const diff = TARGET - Date.now();
+    if (diff <= 0) {
+      ['d','h','m','s'].forEach(k => { els[k].textContent = '00'; });
+      return;
+    }
+    els.d.textContent = pad(Math.floor(diff / 86400000));
+    els.h.textContent = pad(Math.floor((diff % 86400000) / 3600000));
+    els.m.textContent = pad(Math.floor((diff % 3600000) / 60000));
+    els.s.textContent = pad(Math.floor((diff % 60000) / 1000));
+  }
+
+  tick();
+  setInterval(tick, 1000);
+})();
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Email form — show thank you on submit
+// ─────────────────────────────────────────────────────────────────────────────
+document.getElementById('notifyForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  this.style.display = 'none';
+  this.nextElementSibling.style.display = 'none'; // hide note
+  document.getElementById('thanks').style.display = 'block';
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Biology facts ticker
+// ─────────────────────────────────────────────────────────────────────────────
+(function () {
+  const facts = [
+    'Your body replaces ~330 billion cells every single day',
+    'Octopuses have three hearts and blue blood',
+    'Tardigrades can survive in the vacuum of space',
+    'A teaspoon of soil holds more organisms than there are humans on Earth',
+    'Neurons fire at speeds up to 268 mph',
+    'Trees communicate through underground fungal networks called the Wood Wide Web',
+    'The human genome contains ~3 billion base pairs',
+    'Mitochondria have their own DNA — separate from the cell nucleus',
+    'Your gut microbiome contains more cells than your entire body',
+    'A strand of DNA stretched out would reach from Earth to the Sun 600 times',
+    'Viruses are not considered alive — yet they drive evolution',
+    'The mantis shrimp can see 16 types of color receptors vs. our 3',
+  ];
+
+  const track = document.getElementById('ticker');
+  const doubled = [...facts, ...facts];
+
+  doubled.forEach(f => {
+    const span = document.createElement('span');
+    span.className = 'fact';
+    const dot = document.createElement('span');
+    dot.className = 'fact-dot';
+    span.appendChild(dot);
+    span.appendChild(document.createTextNode(f));
+    track.appendChild(span);
+  });
+})();
+</script>
+</body>
+</html>
