@@ -234,77 +234,6 @@
       margin-top: 0.45rem;
     }
 
-    /* ── Email form ── */
-    .form-wrap {
-      width: 100%;
-      max-width: 440px;
-      animation: fade-up 0.8s 0.45s ease both;
-    }
-
-    .notify-form {
-      display: flex;
-      gap: 0.5rem;
-      width: 100%;
-    }
-
-    .notify-form input[type="email"] {
-      flex: 1;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 0.85rem 1.1rem;
-      color: var(--white);
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 0.88rem;
-      outline: none;
-      transition: border-color 0.25s, background 0.25s;
-    }
-    .notify-form input[type="email"]:focus {
-      border-color: var(--green);
-      background: rgba(74,222,128,0.05);
-    }
-    .notify-form input[type="email"]::placeholder { color: rgba(255,255,255,0.25); }
-
-    .notify-form button {
-      background: var(--green);
-      color: #060608;
-      border: none;
-      border-radius: 10px;
-      padding: 0.85rem 1.3rem;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-weight: 700;
-      font-size: 0.82rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      white-space: nowrap;
-      transition: background 0.2s, transform 0.12s, box-shadow 0.2s;
-      box-shadow: 0 0 0 0 rgba(74,222,128,0.4);
-    }
-    .notify-form button:hover {
-      background: #86efac;
-      box-shadow: 0 0 20px rgba(74,222,128,0.3);
-    }
-    .notify-form button:active { transform: scale(0.96); }
-
-    .form-note {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      font-size: 0.72rem;
-      color: rgba(255,255,255,0.22);
-      margin-top: 0.65rem;
-      letter-spacing: 0.02em;
-    }
-
-    .thanks-msg {
-      display: none;
-      font-family: 'Palatino Linotype', Palatino, Georgia, serif;
-      font-style: italic;
-      font-size: 1.05rem;
-      color: var(--green);
-      animation: fade-up 0.4s ease both;
-      padding: 0.8rem;
-    }
-
     /* ── Divider ── */
     .divider {
       width: 1px;
@@ -380,7 +309,6 @@
 
     /* ── Mobile ── */
     @media (max-width: 520px) {
-      .notify-form { flex-direction: column; }
       .cd-block { min-width: 72px; padding: 1rem 0.9rem 0.8rem; }
       .cd-num { font-size: 2rem; }
       .headline { letter-spacing: -0.02em; }
@@ -422,7 +350,7 @@
 
   <p class="tagline">
     Deep dives into biology that make you say <em>wait, WHAT?</em><br/>
-    Launching October 2026.
+    Launching Monday, July 6th.
   </p>
 
   <!-- Countdown -->
@@ -443,16 +371,6 @@
       <span class="cd-num" id="cd-s">--</span>
       <span class="cd-label">Seconds</span>
     </div>
-  </div>
-
-  <!-- Email form -->
-  <div class="form-wrap">
-    <form class="notify-form" id="notifyForm">
-      <input type="email" placeholder="your@email.com" autocomplete="email" required />
-      <button type="submit">Notify Me</button>
-    </form>
-    <p class="form-note">No spam. Just biology that genuinely blows your mind.</p>
-    <p class="thanks-msg" id="thanks">🧬 You're on the list — we'll ping you when we launch.</p>
   </div>
 
   <div class="divider"></div>
@@ -560,10 +478,10 @@
 })();
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Countdown to October 1, 2026
+// Countdown to Monday July 6, 2026
 // ─────────────────────────────────────────────────────────────────────────────
 (function () {
-  const TARGET = new Date('2026-10-01T00:00:00');
+  const TARGET = new Date('2026-07-06T00:00:00');
   const els = {
     d: document.getElementById('cd-d'),
     h: document.getElementById('cd-h'),
@@ -588,16 +506,6 @@
   tick();
   setInterval(tick, 1000);
 })();
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Email form — show thank you on submit
-// ─────────────────────────────────────────────────────────────────────────────
-document.getElementById('notifyForm').addEventListener('submit', function (e) {
-  e.preventDefault();
-  this.style.display = 'none';
-  this.nextElementSibling.style.display = 'none'; // hide note
-  document.getElementById('thanks').style.display = 'block';
-});
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Biology facts ticker
